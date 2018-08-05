@@ -22,7 +22,7 @@ if has("win32")
         finish
     endif
 
-    execute s:pyfile . ' <sfile>:h:h/res/win_ime_con.py'
+    execute s:pyfile . ' <sfile>:h:h/py/win_ime_con.py'
     execute s:py . ' wic = WinImeCon()'
 
     augroup win_ime_con
@@ -34,6 +34,10 @@ if has("win32")
     augroup END
 
     function! On_insert_enter()
+        if !exists('b:win_ime_con_flag')
+            return
+        endif
+
         if b:win_ime_con_flag == 0
             let b:win_ime_con_flag = 1
             if b:win_ime_con_is_active == 1 && !(exists('g:win_ime_con_mode') && g:win_ime_con_mode == 0)
@@ -43,6 +47,10 @@ if has("win32")
     endfunction
 
     function! On_insert_leave()
+        if !exists('b:win_ime_con_flag')
+            return
+        endif
+
         if b:win_ime_con_flag == 1
             let b:win_ime_con_flag = 0
             execute s:py . ' wic.on_leave()'
