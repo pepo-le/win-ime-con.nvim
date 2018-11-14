@@ -22,37 +22,41 @@ if has("win32")
         finish
     endif
 
+    if !exists('g:win_ime_con_mode')
+        let g:win_ime_con_mode = 1
+    endif
+
     execute s:pyfile . ' <sfile>:h:h/py/win_ime_con.py'
     execute s:py . ' wic = WinImeCon()'
 
     augroup win_ime_con
         autocmd!
-        autocmd BufWinEnter * let b:win_ime_con_flag = 0
+        autocmd BufWinEnter * let b:win_ime_con_is_insert = 0
         autocmd BufWinEnter * let b:win_ime_con_is_active = 0
         autocmd InsertEnter * call On_insert_enter()
         autocmd InsertLeave * call On_insert_leave()
     augroup END
 
     function! On_insert_enter()
-        if !exists('b:win_ime_con_flag')
+        if !exists('b:win_ime_con_is_insert')
             return
         endif
 
-        if b:win_ime_con_flag == 0
-            let b:win_ime_con_flag = 1
-            if b:win_ime_con_is_active == 1 && !(exists('g:win_ime_con_mode') && g:win_ime_con_mode == 0)
+        if b:win_ime_con_is_insert == 0
+            let b:win_ime_con_is_insert = 1
+            if b:win_ime_con_is_active == 1 && g:win_ime_con_mode != 0
                 execute s:py . ' wic.activate()'
             endif
         endif
     endfunction
 
     function! On_insert_leave()
-        if !exists('b:win_ime_con_flag')
+        if !exists('b:win_ime_con_is_insert')
             return
         endif
 
-        if b:win_ime_con_flag == 1
-            let b:win_ime_con_flag = 0
+        if b:win_ime_con_is_insert == 1
+            let b:win_ime_con_is_insert = 0
             execute s:py . ' wic.on_leave()'
         endif
     endfunction
